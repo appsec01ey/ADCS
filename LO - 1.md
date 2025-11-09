@@ -91,8 +91,10 @@ Step 2: Request TGT via PKINIT
 
 Step 3: The PAC_CREDENTIAL_INFO Structure
 TGT contains:
-<img width="663" height="539" alt="image" src="https://github.com/user-attachments/assets/7f530878-7f1a-4e6f-8e61-9af0f259a0a7" />
-
+├─────────────────────────────────┤
+│ PAC_CREDENTIAL_INFO             │ 
+│   - Contains user's NTLM hashes │ ← The treasure!
+└─────────────────────────────────┘
 
 Step 4: User-to-User (U2U) Authentication Trick
 Here's the clever part. Instead of trying to directly decrypt the PAC, you:
@@ -108,4 +110,7 @@ Step 5: Extract NTLM Hashes
 - Extract the PAC_CREDENTIAL_INFO structure
 - Recover the NTLM hashes from inside it
 ```
+
+<img width="591" height="550" alt="image" src="https://github.com/user-attachments/assets/b59e1c00-2f09-4bb4-9779-5de75f464a3b" />
+
            
