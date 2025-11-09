@@ -46,4 +46,27 @@ This is least privilege by design — apps run under a minimal-privilege account
 - Start a smbserver on compromised machine using : smbserver.py -smb2support testshare .
 - Try to connect to the share via obtained shell using: dir \\hostname\testshare$ we can see that authentication happens using cb-webapp1$ [$ means its a machine account] domain account instead of iis-apppool virtual account
 - Thus we can try to use certpotato to perform a priv esc to Administrator
-- 
+- We try to use tgtdeleg trick to fetch the TGT for the Machine Account
+```
+TgtDeleg:
+
+1. When u login a TGT and session key is stored in memory but you cant access it or export it , hence we use tgtdeleg trick via S4U2self extension to export a TGT
+2. Step 1: You're alice@company.com > Valid TGT in memory > TGT session key in memory
+3. Step 2: Send SPECIAL TGS-REQ to Domain Controller : Hi Domain Controller,I'm Alice. Here's my TGT.Please give me a FORWARDABLE service ticket for HTTP/mycomputer.company.com using S4U2self (service for user to self)
+4. Step 3: Domain Controller Processes SPECIAL Request.
+        Because of S4U2self + forwardable, it does something unusual:
+        Creates service ticket for HTTP/mycomputer But encrypts it with YOUR TGT session key instead of HTTP service's key and Puts your original TGT session key inside the ticket
+
+5. Step 4: SPECIAL TGS-REP Message contains:
+┌─────────────────────────────────┐
+│ Service Ticket for HTTP/mycomputer │ ← Encrypted with YOUR TGT session key
+│ (You CAN read this!)            │
+├─────────────────────────────────┤
+│ Your Original TGT Session Key   │ ← Inside the encrypted part
+└─────────────────────────────────┘
+
+6. Step 5: The Magic Happens: Since you already know your TGT session key, you can:
+  Decrypt the service ticket (because it's encrypted with your key)
+  Extract your TGT session key from inside
+  Rebuild a full TGT using these components
+```
