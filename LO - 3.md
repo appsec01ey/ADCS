@@ -7,10 +7,10 @@
 
 - Shadow Credentials attack:
 
-- You find an account where you have permission to add new keys to their key rack
-- You add your own certificate to their key rack
-- You then use your certificate to authenticate as that user
-- You've effectively taken over their account without knowing their password!
+  - You find an account where you have permission to add new keys to their key rack
+  - You add your own certificate to their key rack
+  - You then use your certificate to authenticate as that user
+  - You've effectively taken over their account without knowing their password!
 
 - Step-by-Step Attack Flow
 - Prerequisites: You have Write or GenericWrite permissions on a target account.AD Certificate Services (AD CS) is running in the domain
