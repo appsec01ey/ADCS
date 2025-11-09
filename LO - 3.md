@@ -84,3 +84,7 @@ Rubeus asktgt /user:alice /certificate:alice.pfx /password:password /ptt
 - Why This Attack Works
   - Legitimate Feature Abuse:
     - msDS-KeyCredentialLink is meant for passwordless authentication . It allows multiple authentication methods per user . You're abusing the "add your own certificate" capability
+   
+#### Note : msDS-KeyCredentialLink is an Active Directory attribute that stores public keys for certificate-based authentication
+
+
